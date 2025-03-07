@@ -4,6 +4,7 @@ const app = express();
 const User = require("./models/user");
 
 const {connectDB} = require("./config/database");
+const { signUpDataValidator } = require("./helpers/validation");
 //for changing json string to JS object for all the API's
 app.use(express.json());
 //USer using FirstName
@@ -66,21 +67,13 @@ catch(err)
 
 })
 
-function validateFirstName(name){
-        const regex = /^([a-zA-Z]+)$/;
-        const isValid = regex.test(name);
-        return isValid;
-        
-}
+
 app.post("/signup", async(req,res)=>{
     //Creating a new instance of the user Model
     const user= new User(req.body);
 try{
     //firstName Validation
-    if(!validateFirstName(req.body.firstName))
-    {
-        throw new Error("Invalid Name Format")
-    }
+    signUpDataValidator(req);
     await user.save();
     res.send("User added successfully")
 }
@@ -111,18 +104,7 @@ app.patch("/user/:userId", async(req,res)=>{
   
     console.log(userId,updateData)
     try{
-    // const ALLOWED_UPDATES = ["about","gender","age","skills"];
-   
-    // const isUpdateAllowed = Object.keys(updateData).every((k)=>{
-    //     console.log(k);
-    //     ALLOWED_UPDATES.includes(k);
-        
-    // })
     
-    // if(!isUpdateAllowed)
-    // {
-    //     throw new Error("Update now allowed "+ err.message);
-    // }
     if(data?.skills?.length>10)
     {
         throw new Error("Skills Cant be more than 10")
